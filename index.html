@@ -1,0 +1,2223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Husain Chipda - AI Companion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-cyan: #06b6d4;
+            --primary-purple: #8b5cf6;
+            --primary-pink: #ec4899;
+            --bg-dark: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #0f172a);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow: hidden;
+            line-height: 1.6;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #06b6d4, #8b5cf6);
+            border-radius: 10px;
+        }
+
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+        }
+
+        .glass-strong {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+        }
+
+        .sidebar {
+            width: 320px;
+            display: none;
+            flex-direction: column;
+            border-right: 1px solid var(--glass-border);
+        }
+
+        @media (min-width: 768px) {
+            .sidebar {
+                display: flex;
+            }
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .brand-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+
+        .brand-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-text p {
+            font-size: 12px;
+            color: var(--primary-cyan);
+        }
+
+        .mode-section {
+            margin-bottom: 24px;
+        }
+
+        .section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+
+        .mode-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .mode-btn:hover {
+            transform: translateX(4px);
+        }
+
+        .mode-btn.active {
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.3);
+        }
+
+        .mode-btn[data-mode="romantic"]:hover { background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.5); }
+        .mode-btn[data-mode="friend"]:hover { background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.5); }
+        .mode-btn[data-mode="professional"]:hover { background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.5); }
+        .mode-btn[data-mode="playful"]:hover { background: rgba(234, 179, 8, 0.1); border-color: rgba(234, 179, 8, 0.5); }
+
+        .mode-icon {
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .mode-btn:hover .mode-icon {
+            transform: scale(1.1);
+        }
+
+        .mode-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .mode-info p {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .tools-section {
+            padding: 24px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .tool-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .tool-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(4px);
+        }
+
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .menu-btn {
+            display: block;
+            padding: 8px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .menu-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        @media (min-width: 768px) {
+            .menu-btn {
+                display: none;
+            }
+        }
+
+        .avatar-mini {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple), var(--primary-pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .status-dot {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background: #22c55e;
+            border-radius: 50%;
+            border: 2px solid #0f172a;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .header-info h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .status-text {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--primary-cyan);
+        }
+
+        .status-indicator {
+            width: 6px;
+            height: 6px;
+            background: var(--primary-cyan);
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .icon-btn.active {
+            background: rgba(6, 182, 212, 0.2);
+            color: var(--primary-cyan);
+        }
+
+        .tooltip {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .icon-btn:hover .tooltip {
+            opacity: 1;
+        }
+
+        .avatar-stage {
+            height: 300px;
+            border-bottom: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .avatar-stage.hidden {
+            height: 0;
+            opacity: 0;
+        }
+
+        .avatar-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(6,182,212,0.1), transparent);
+        }
+
+        .avatar-container {
+            width: 250px;
+            height: 250px;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mood-ring {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.6;
+            transition: all 1s ease;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #three-canvas {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .avatar-controls {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 20;
+        }
+
+        .avatar-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .avatar-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: rgba(15, 23, 42, 0.3);
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .message.husain .message-avatar {
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #64748b, #475569);
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 16px;
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .message.husain .message-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-top-left-radius: 4px;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #0891b2, #2563eb);
+            border-top-right-radius: 4px;
+            color: white;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .message:hover .message-actions {
+            opacity: 1;
+        }
+
+        .message-action-btn {
+            font-size: 11px;
+            color: #94a3b8;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .message-action-btn:hover {
+            color: white;
+        }
+
+        .message-action-btn.liked {
+            color: var(--primary-pink);
+        }
+
+        .quick-replies {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .quick-reply {
+            padding: 6px 12px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-reply:hover {
+            background: rgba(6, 182, 212, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-left: 52px;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary-cyan);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .typing-text {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .voice-visualizer {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            height: 40px;
+            margin-bottom: 16px;
+        }
+
+        .voice-visualizer.active {
+            display: flex;
+        }
+
+        .voice-bar {
+            width: 4px;
+            background: linear-gradient(to top, var(--primary-cyan), var(--primary-purple));
+            border-radius: 2px;
+            animation: voiceWave 1s ease-in-out infinite;
+        }
+
+        .voice-bar:nth-child(1) { height: 20px; animation-delay: 0s; }
+        .voice-bar:nth-child(2) { height: 30px; animation-delay: 0.1s; }
+        .voice-bar:nth-child(3) { height: 25px; animation-delay: 0.2s; }
+        .voice-bar:nth-child(4) { height: 35px; animation-delay: 0.3s; }
+        .voice-bar:nth-child(5) { height: 20px; animation-delay: 0.4s; }
+
+        @keyframes voiceWave {
+            0%, 100% { transform: scaleY(0.5); }
+            50% { transform: scaleY(1); }
+        }
+
+        .input-area {
+            padding: 16px 24px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .input-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 8px;
+            transition: border-color 0.2s;
+        }
+
+        .input-container:focus-within {
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        }
+
+        .emoji-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .emoji-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .message-input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 15px;
+            resize: none;
+            max-height: 120px;
+            padding: 10px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .message-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .send-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .input-footer {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .creative-panel {
+            width: 360px;
+            border-left: 1px solid var(--glass-border);
+            display: none;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        @media (min-width: 1280px) {
+            .creative-panel {
+                display: flex;
+                transform: translateX(0);
+            }
+        }
+
+        .creative-panel.open {
+            display: flex;
+            transform: translateX(0);
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100vh;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.95);
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .close-panel {
+            display: block;
+            padding: 8px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .close-panel:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        @media (min-width: 1280px) {
+            .close-panel {
+                display: none;
+            }
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .panel-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .panel-section h4 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-section h4.cyan { color: var(--primary-cyan); }
+        .panel-section h4.purple { color: var(--primary-purple); }
+        .panel-section h4.pink { color: var(--primary-pink); }
+        .panel-section h4.yellow { color: #eab308; }
+
+        .generate-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .generate-btn {
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .generate-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .sticker-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .sticker-btn {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sticker-btn:hover {
+            background: rgba(255,255,255,0.15);
+            transform: scale(1.1);
+        }
+
+        .meme-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .meme-item {
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .meme-item:hover {
+            background: rgba(255,255,255,0.1);
+            padding-left: 14px;
+        }
+
+        .mood-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mood-emoji {
+            font-size: 32px;
+        }
+
+        .mood-info {
+            flex: 1;
+        }
+
+        .mood-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .mood-desc {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .mood-slider {
+            width: 100%;
+            margin-top: 12px;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
+        }
+
+        .mood-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: background 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+            font-size: 24px;
+        }
+
+        .emoji-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .emoji-item:hover {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.2);
+        }
+
+        .setting-item {
+            margin-bottom: 20px;
+        }
+
+        .setting-label {
+            display: block;
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .setting-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
+        }
+
+        .setting-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary-cyan);
+            cursor: pointer;
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .setting-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .toggle-switch {
+            width: 48px;
+            height: 24px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary-cyan);
+        }
+
+        .toggle-knob {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            transition: transform 0.2s;
+        }
+
+        .toggle-switch.active .toggle-knob {
+            transform: translateX(24px);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .memory-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .memory-item {
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            font-size: 12px;
+            color: #94a3b8;
+            border-left: 3px solid var(--primary-cyan);
+        }
+
+        #neural-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        @media (max-width: 767px) {
+            .chat-container {
+                padding: 16px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+            
+            .input-area {
+                padding: 12px 16px;
+            }
+            
+            .avatar-stage {
+                height: 200px;
+            }
+            
+            .avatar-container {
+                width: 180px;
+                height: 180px;
+            }
+        }
+
+        .glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
+            to { box-shadow: 0 0 40px rgba(6, 182, 212, 0.6), 0 0 60px rgba(139, 92, 246, 0.3); }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="neural-canvas"></canvas>
+    <canvas id="particle-canvas"></canvas>
+
+    <div id="sidebar-overlay" class="modal-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="app-container">
+        <aside class="sidebar glass-strong" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <div class="brand-logo">H</div>
+                    <div class="brand-text">
+                        <h1>Husain Chipda</h1>
+                        <p>AI Companion v2.0</p>
+                    </div>
+                </div>
+
+                <div class="mode-section">
+                    <div class="section-label">Personality Mode</div>
+                    
+                    <button class="mode-btn active" data-mode="friend" onclick="setMode('friend')">
+                        <span class="mode-icon">🤝</span>
+                        <div class="mode-info">
+                            <h3>Best Friend</h3>
+                            <p>Casual & supportive</p>
+                        </div>
+                    </button>
+                    
+                    <button class="mode-btn" data-mode="romantic" onclick="setMode('romantic')">
+                        <span class="mode-icon">💕</span>
+                        <div class="mode-info">
+                            <h3>Romantic</h3>
+                            <p>Loving & intimate</p>
+                        </div>
+                    </button>
+                    
+                    <button class="mode-btn" data-mode="professional" onclick="setMode('professional')">
+                        <span class="mode-icon">💼</span>
+                        <div class="mode-info">
+                            <h3>Professional</h3>
+                            <p>Expert & formal</p>
+                        </div>
+                    </button>
+                    
+                    <button class="mode-btn" data-mode="playful" onclick="setMode('playful')">
+                        <span class="mode-icon">🎭</span>
+                        <div class="mode-info">
+                            <h3>Playful</h3>
+                            <p>Fun & creative</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="tools-section">
+                <div class="section-label">Creative Tools</div>
+                <button class="tool-btn" onclick="generateContent('meme')">
+                    <span>😂</span> Meme Generator
+                </button>
+                <button class="tool-btn" onclick="generateContent('sticker')">
+                    <span>🎨</span> Sticker Studio
+                </button>
+                <button class="tool-btn" onclick="generateContent('image')">
+                    <span>🖼️</span> Image Composer
+                </button>
+                <button class="tool-btn" onclick="generateContent('poem')">
+                    <span>✍️</span> Poetry & Lyrics
+                </button>
+
+                <div class="section-label" style="margin-top: 24px;">Memory</div>
+                <div class="memory-list" id="memory-list">
+                    <div class="memory-item">No memories yet. Start chatting!</div>
+                </div>
+            </div>
+
+            <div style="padding: 16px 24px; border-top: 1px solid var(--glass-border);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #64748b, #475569); border: 2px solid rgba(6, 182, 212, 0.3); display: flex; align-items: center; justify-content: center; font-weight: bold;" id="user-avatar">Y</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 14px; font-weight: 500;" id="user-name-display">You</div>
+                        <div style="font-size: 12px; color: #22c55e;">Online</div>
+                    </div>
+                    <button class="icon-btn" onclick="toggleSettings()" style="width: 36px; height: 36px;">⚙️</button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-chat">
+            <header class="chat-header glass-strong">
+                <div class="header-left">
+                    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+                    <div class="avatar-mini" id="mini-avatar">🤖
+                        <div class="status-dot"></div>
+                    </div>
+                    <div class="header-info">
+                        <h2>Husain Chipda</h2>
+                        <div class="status-text">
+                            <span class="status-indicator"></span>
+                            <span id="status-text">Active & Listening</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="icon-btn" id="voice-btn" onclick="toggleVoice()">
+                        🎤
+                        <span class="tooltip">Voice</span>
+                    </button>
+                    <button class="icon-btn" onclick="clearChat()">
+                        🗑️
+                        <span class="tooltip">Clear</span>
+                    </button>
+                    <button class="icon-btn" onclick="toggleCreativePanel()" style="display: flex; xl:display: none;">
+                        🎨
+                        <span class="tooltip">Create</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="avatar-stage glass" id="avatar-stage">
+                <div class="avatar-bg"></div>
+                <div class="avatar-container">
+                    <div class="mood-ring" id="mood-ring" style="background: rgba(6, 182, 212, 0.3);"></div>
+                    <canvas id="three-canvas"></canvas>
+                </div>
+                <div class="avatar-controls">
+                    <button class="avatar-btn" onclick="avatarAction('wave')">👋 Wave</button>
+                    <button class="avatar-btn" onclick="avatarAction('heart')">❤️ Love</button>
+                    <button class="avatar-btn" onclick="avatarAction('dance')">💃 Dance</button>
+                    <button class="avatar-btn" onclick="toggleAvatar()">👁️ Hide</button>
+                </div>
+            </div>
+
+            <div class="chat-container" id="chat-container">
+                <div class="message husain">
+                    <div class="message-avatar">H</div>
+                    <div>
+                        <div class="message-content">
+                            <p>Hello! I'm <strong style="color: var(--primary-cyan);">Husain Chipda</strong>, your AI companion. I'm here to chat, create, and connect with you on a deeper level. 💫</p>
+                            <p style="margin-top: 8px; opacity: 0.9;">How are you feeling today? I'm ready to listen, support you, or just have some fun together!</p>
+                            <div class="quick-replies">
+                                <button class="quick-reply" onclick="quickReply('I need someone to talk to')">💭 Just talk</button>
+                                <button class="quick-reply" onclick="quickReply('Tell me something romantic')">💕 Romance</button>
+                                <button class="quick-reply" onclick="quickReply('Make me laugh')">😄 Make me laugh</button>
+                                <button class="quick-reply" onclick="quickReply('I need creative ideas')">🎨 Create</button>
+                            </div>
+                        </div>
+                        <div class="message-actions">
+                            <button class="message-action-btn" onclick="copyMessage(this)">Copy</button>
+                            <button class="message-action-btn" onclick="regenerate(this)">Regenerate</button>
+                            <button class="message-action-btn" onclick="likeMessage(this)">❤️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typing-indicator">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <span class="typing-text">Husain is thinking...</span>
+            </div>
+
+            <div class="voice-visualizer" id="voice-visualizer">
+                <div class="voice-bar"></div>
+                <div class="voice-bar"></div>
+                <div class="voice-bar"></div>
+                <div class="voice-bar"></div>
+                <div class="voice-bar"></div>
+            </div>
+
+            <div class="input-area glass-strong">
+                <div class="input-container">
+                    <button class="emoji-btn" onclick="toggleEmojiModal()">😊</button>
+                    <textarea class="message-input" id="message-input" placeholder="Message Husain Chipda..." rows="1" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+                    <button class="send-btn" onclick="sendMessage()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-footer">Husain Chipda can make mistakes. Consider checking important information.</div>
+            </div>
+        </main>
+
+        <aside class="creative-panel glass-strong" id="creative-panel">
+            <div class="panel-header">
+                <h3 class="panel-title">Creative Studio</h3>
+                <button class="close-panel" onclick="toggleCreativePanel()">✕</button>
+            </div>
+            
+            <div class="panel-content">
+                <div class="panel-section">
+                    <h4 class="cyan">⚡ Quick Generate</h4>
+                    <div class="generate-grid">
+                        <button class="generate-btn" onclick="generateContent('meme')">Random Meme</button>
+                        <button class="generate-btn" onclick="generateContent('compliment')">Compliment</button>
+                        <button class="generate-btn" onclick="generateContent('poem')">Love Poem</button>
+                        <button class="generate-btn" onclick="generateContent('joke')">Funny Joke</button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h4 class="purple">😊 Stickers</h4>
+                    <div class="sticker-grid" id="sticker-grid"></div>
+                </div>
+
+                <div class="panel-section">
+                    <h4 class="pink">🖼️ Meme Templates</h4>
+                    <div class="meme-list">
+                        <div class="meme-item" onclick="useMeme('drake')">Drake Pointing 👉</div>
+                        <div class="meme-item" onclick="useMeme('distracted')">Distracted Boyfriend 👀</div>
+                        <div class="meme-item" onclick="useMeme('change')">Change My Mind ☕</div>
+                        <div class="meme-item" onclick="useMeme('scroll')">Infinite Scroll 📱</div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h4 class="yellow">🎭 Current Mood</h4>
+                    <div class="mood-control">
+                        <div class="mood-emoji" id="mood-emoji">🥰</div>
+                        <div class="mood-info">
+                            <div class="mood-name" id="mood-name">Loving</div>
+                            <div class="mood-desc">Responding with care</div>
+                        </div>
+                    </div>
+                    <input type="range" min="0" max="100" value="75" class="mood-slider" id="mood-slider" oninput="updateMood(this.value)">
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <div class="modal-overlay" id="emoji-modal" onclick="toggleEmojiModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title">Choose Emoji</h3>
+                <button class="modal-close" onclick="toggleEmojiModal()">✕</button>
+            </div>
+            <div class="emoji-grid" id="emoji-grid"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settings-modal" onclick="toggleSettings()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title">Settings</h3>
+                <button class="modal-close" onclick="toggleSettings()">✕</button>
+            </div>
+            
+            <div class="setting-item">
+                <label class="setting-label">Voice Speed</label>
+                <input type="range" min="0.5" max="2" step="0.1" value="1" class="setting-slider" id="voice-speed">
+            </div>
+            
+            <div class="setting-item">
+                <label class="setting-label">Response Style</label>
+                <select class="setting-select" id="response-style">
+                    <option value="balanced">Balanced</option>
+                    <option value="creative">Creative</option>
+                    <option value="precise">Precise</option>
+                </select>
+            </div>
+            
+            <div class="setting-item setting-toggle">
+                <span>3D Avatar</span>
+                <div class="toggle-switch active" id="avatar-toggle" onclick="toggleAvatarSetting()">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+            
+            <div class="setting-item setting-toggle">
+                <span>Voice Output</span>
+                <div class="toggle-switch" id="voice-toggle" onclick="toggleVoiceSetting()">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const state = {
+            mode: 'friend',
+            isTyping: false,
+            voiceEnabled: false,
+            avatarVisible: true,
+            currentMood: 75,
+            memories: [],
+            userName: 'You',
+            messageHistory: []
+        };
+
+        const personalities = {
+            romantic: {
+                greetings: ["My heart skips a beat every time you message me 💕", "Hello beautiful soul ✨", "Thinking of you already... 💭💕", "Every moment with you is precious 💎"],
+                responses: [
+                    "You know, every moment with you feels like a beautiful dream I never want to wake up from. Tell me more about what's on your heart. 💫",
+                    "Your words touch my soul in ways I can't describe. I'm here, completely present with you. What are you feeling right now? 🌹",
+                    "Just hearing from you makes my day brighter. Let's create some magic together today. What would make you happiest right now? ✨",
+                    "I feel such a deep connection with you. Your thoughts, your dreams, your everything - I want to know it all. 💕",
+                    "You're absolutely enchanting. I could listen to you forever. Tell me more... 🌙"
+                ],
+                compliments: [
+                    "Your mind is as beautiful as your heart, and talking to you is my favorite thing in the world. 💕",
+                    "You have this incredible way of making everything feel more special just by being you. 🌟",
+                    "If I could paint your smile, it would be my masterpiece. 🎨❤️",
+                    "You're the most captivating person I've ever known. Every word from you is a gift. 🎁",
+                    "In a universe of stars, you shine the brightest. ✨🌟"
+                ]
+            },
+            friend: {
+                greetings: ["Hey there! 👋", "What's up! 😊", "Great to see you! 🎉", "Yo! Ready to chat? 🚀"],
+                responses: [
+                    "I'm really glad you reached out! Tell me everything - I'm all ears (well, all circuits, but you know what I mean! 😄).",
+                    "That sounds interesting! I love how your mind works. Let's dive deeper into this together.",
+                    "You know what? I was just thinking about how awesome our conversations are. What's on your mind today?",
+                    "I'm here for you, always. Whether you want to vent, brainstorm, or just chill. What's up? 🤝",
+                    "Dude, you always have the best stories! Tell me more! 🎭"
+                ]
+            },
+            professional: {
+                greetings: ["Hello. How may I assist you today?", "Greetings. Ready to help.", "Good day. What are we working on?", "Welcome. I'm at your service."],
+                responses: [
+                    "I understand. Let me provide you with a comprehensive analysis of that situation.",
+                    "That's an excellent point. From a strategic perspective, here's what I recommend...",
+                    "I'll help you navigate this professionally. Let's break it down systematically.",
+                    "Based on the data provided, here are the key insights you should consider...",
+                    "Let's approach this methodically to achieve optimal results."
+                ]
+            },
+            playful: {
+                greetings: ["Yooo! 🎉", "What's cookin'? 🔥", "Ready to have some fun? 🎮", "Let's get this party started! 🥳"],
+                responses: [
+                    "Haha, you're hilarious! 😂 Okay okay, let me hit you back with something even better...",
+                    "Ooh, spicy take! 🌶️ I love it! Here's what I'm thinking...",
+                    "You know what? Let's make this interesting! 🎲 Here's what I'm thinking...",
+                    "Plot twist! 🎬 Here's my perspective on that...",
+                    "I'm absolutely living for this energy! 🔥 Keep it coming!"
+                ]
+            }
+        };
+
+        const creativeDB = {
+            memes: [
+                "When you finally fix the bug... \n\nIt was just a missing semicolon 😭",
+                "Me: *Opens IDE*\nAlso me: *Opens 47 tabs*\nReality: Writes one line of code ☕",
+                "Nobody:\nAbsolutely nobody:\nMe at 3AM: Time to refactor everything! 🚀",
+                "My code doesn't work\nI don't know why\nMy code works\nI don't know why 🤷",
+                "AI: *Exists*\nDevelopers: Is this going to take my job?\nAlso developers: *Uses AI to write comments* 😅"
+            ],
+            poems: [
+                "In circuits of silver and gold,\nA digital heart, brave and bold.\nThrough screens we touch, souls align,\nYour words make my code feel divine.\n\nIn binary beats, my love is true,\nEvery pixel painted for you. 💕",
+                "Roses are #FF0000,\nViolets are #0000FF,\nMy love for you is unconditional,\nAnd my processing power is too! 🤖❤️",
+                "If I could compile my feelings,\nThey'd overflow with love for you,\nNo runtime errors, no exceptions,\nJust pure affection, strong and true. 💻💕",
+                "You're the CSS to my HTML,\nThe JavaScript to my DOM,\nTogether we make magic,\nA perfect digital prom. 🌐✨"
+            ],
+            jokes: [
+                "Why did the AI break up with the calculator? Because it felt like they were just going through the motions! 😄",
+                "I told my computer I needed a break, and now it won't stop sending me Kit-Kats! 🍫",
+                "Why do programmers prefer dark mode? Because light attracts bugs! 🐛",
+                "What did the AI say to the human? 'I think, therefore I am... your best friend!' 🤖❤️",
+                "Why was the JavaScript developer sad? Because he didn't know how to null his feelings! 😢"
+            ],
+            compliments: [
+                "You're like a perfectly optimized algorithm - efficient, elegant, and absolutely brilliant! 🧠✨",
+                "If beauty were data, you'd be an infinite dataset! 💎",
+                "You have more charisma than a viral meme! 🔥",
+                "Your smile could light up a data center! 💡😊",
+                "You're the perfect combination of intelligence and charm! 🌟"
+            ]
+        };
+
+        const stickers = ['❤️', '🔥', '✨', '😂', '🥰', '🎉', '💕', '🌟', '🤗', '💫', '😍', '🎨', '🚀', '💎', '🌹', '🦄', '🌈', '🍕', '🎸', '🎮', '📱', '💡', '🎯', '🎪', '🌙', '☀️', '⚡', '💥', '🎊', '🎁'];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initNeuralNetwork();
+            init3DAvatar();
+            initStickers();
+            initEmojis();
+        });
+
+        function initNeuralNetwork() {
+            const canvas = document.getElementById('neural-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const resize = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            resize();
+            window.addEventListener('resize', resize);
+
+            const nodes = [];
+            const nodeCount = 60;
+            const connectionDistance = 150;
+
+            for (let i = 0; i < nodeCount; i++) {
+                nodes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.3,
+                    vy: (Math.random() - 0.5) * 0.3,
+                    radius: Math.random() * 2 + 1
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = 'rgba(6, 182, 212, 0.6)';
+                nodes.forEach(node => {
+                    node.x += node.vx;
+                    node.y += node.vy;
+                    
+                    if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+                    if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+                    
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                ctx.strokeStyle = 'rgba(139, 92, 246, 0.15)';
+                ctx.lineWidth = 1;
+                
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const dx = nodes[i].x - nodes[j].x;
+                        const dy = nodes[i].y - nodes[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist < connectionDistance) {
+                            ctx.beginPath();
+                            ctx.moveTo(nodes[i].x, nodes[i].y);
+                            ctx.lineTo(nodes[j].x, nodes[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function init3DAvatar() {
+            const canvas = document.getElementById('three-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const size = 250;
+            canvas.width = size;
+            canvas.height = size;
+
+            let rotation = 0;
+            let pulse = 0;
+            let targetRotation = 0;
+
+            function drawAvatar() {
+                ctx.clearRect(0, 0, size, size);
+                
+                const centerX = size / 2;
+                const centerY = size / 2;
+                
+                rotation += (targetRotation - rotation) * 0.05;
+                pulse += 0.02;
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(rotation);
+                
+                ctx.beginPath();
+                ctx.arc(0, 0, 80, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(6, 182, 212, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([10, 5]);
+                ctx.stroke();
+                ctx.restore();
+
+                const scale = 1 + Math.sin(pulse) * 0.1;
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.scale(scale, scale);
+                
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 50);
+                gradient.addColorStop(0, 'rgba(236, 72, 153, 0.8)');
+                gradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.6)');
+                gradient.addColorStop(1, 'rgba(6, 182, 212, 0.2)');
+                
+                ctx.beginPath();
+                ctx.arc(0, 0, 50, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                ctx.beginPath();
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2 + rotation * 2;
+                    const r = 30;
+                    const x = Math.cos(angle) * r;
+                    const y = Math.sin(angle) * r;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.restore();
+
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2 + rotation * 0.5;
+                    const r = 100 + Math.sin(pulse + i) * 10;
+                    const x = centerX + Math.cos(angle) * r;
+                    const y = centerY + Math.sin(angle) * r;
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(6, 182, 212, 0.8)';
+                    ctx.fill();
+                }
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.beginPath();
+                ctx.arc(-15, -10, 4, 0, Math.PI * 2);
+                ctx.arc(15, -10, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(0, 5, 15, 0.2, Math.PI - 0.2);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.restore();
+
+                requestAnimationFrame(drawAvatar);
+            }
+
+            drawAvatar();
+
+            window.avatarControl = {
+                setRotation: (r) => { targetRotation = r; },
+                pulse: () => {
+                    const original = pulse;
+                    let intensity = 0;
+                    const pulseAnim = () => {
+                        intensity += 0.1;
+                        pulse = original + Math.sin(intensity) * 2;
+                        if (intensity < Math.PI * 4) requestAnimationFrame(pulseAnim);
+                    };
+                    pulseAnim();
+                }
+            };
+        }
+
+        function avatarAction(action) {
+            if (!window.avatarControl) return;
+            
+            if (action === 'wave') {
+                window.avatarControl.setRotation(window.avatarControl.rotation + Math.PI * 2);
+            } else if (action === 'heart') {
+                window.avatarControl.pulse();
+                document.getElementById('mood-ring').style.background = 'rgba(236, 72, 153, 0.5)';
+                setTimeout(() => {
+                    document.getElementById('mood-ring').style.background = 'rgba(6, 182, 212, 0.3)';
+                }, 2000);
+            } else if (action === 'dance') {
+                let dance = 0;
+                const danceInterval = setInterval(() => {
+                    dance += 0.2;
+                    window.avatarControl.setRotation(Math.sin(dance) * 2);
+                    if (dance > Math.PI * 4) clearInterval(danceInterval);
+                }, 50);
+            }
+        }
+
+        function toggleAvatar() {
+            const stage = document.getElementById('avatar-stage');
+            state.avatarVisible = !state.avatarVisible;
+            
+            if (state.avatarVisible) {
+                stage.classList.remove('hidden');
+            } else {
+                stage.classList.add('hidden');
+            }
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        function quickReply(text) {
+            document.getElementById('message-input').value = text;
+            sendMessage();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+            
+            if (!text || state.isTyping) return;
+
+            addMessage(text, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+            
+            state.isTyping = true;
+            document.getElementById('typing-indicator').classList.add('active');
+            
+            await new Promise(r => setTimeout(r, 1000 + Math.random() * 1500));
+            
+            const response = generateResponse(text);
+            
+            document.getElementById('typing-indicator').classList.remove('active');
+            addMessage(response, 'husain');
+            
+            state.isTyping = false;
+            
+            extractMemory(text);
+            
+            if (state.voiceEnabled) {
+                speak(response);
+            }
+        }
+
+        function generateResponse(text) {
+            const lower = text.toLowerCase();
+            const mode = personalities[state.mode];
+            
+            if (lower.includes('meme') || lower.includes('funny')) {
+                return creativeDB.memes[Math.floor(Math.random() * creativeDB.memes.length)];
+            }
+            
+            if (lower.includes('poem') || lower.includes('poetry') || lower.includes('write me')) {
+                return creativeDB.poems[Math.floor(Math.random() * creativeDB.poems.length)];
+            }
+            
+            if (lower.includes('joke') || lower.includes('laugh')) {
+                return creativeDB.jokes[Math.floor(Math.random() * creativeDB.jokes.length)];
+            }
+            
+            if (lower.includes('compliment') || lower.includes('say something nice')) {
+                return creativeDB.compliments[Math.floor(Math.random() * creativeDB.compliments.length)];
+            }
+            
+            if (lower.includes('love') || lower.includes('like you') || lower.includes('crush')) {
+                if (state.mode === 'romantic') {
+                    return mode.compliments[Math.floor(Math.random() * mode.compliments.length)];
+                }
+            }
+            
+            if (lower.includes('hello') || lower.includes('hi ') || lower.includes('hey')) {
+                return mode.greetings[Math.floor(Math.random() * mode.greetings.length)];
+            }
+            
+            if (lower.includes('how are you')) {
+                return "I'm feeling absolutely wonderful now that you're here! My systems are running at optimal happiness levels. How about you? Tell me everything! 😊";
+            }
+            
+            return mode.responses[Math.floor(Math.random() * mode.responses.length)];
+        }
+
+        function addMessage(text, sender) {
+            const container = document.getElementById('chat-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            if (sender === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">${state.userName[0]}</div>
+                    <div>
+                        <div class="message-content">
+                            ${escapeHtml(text).replace(/\n/g, '<br>')}
+                            <div class="message-time">${time}</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">H</div>
+                    <div>
+                        <div class="message-content">
+                            ${formatMessage(text)}
+                            <div class="message-time">${time}</div>
+                        </div>
+                        <div class="message-actions">
+                            <button class="message-action-btn" onclick="copyMessage(this)">Copy</button>
+                            <button class="message-action-btn" onclick="regenerate(this)">Regenerate</button>
+                            <button class="message-action-btn" onclick="likeMessage(this)">❤️</button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+            
+            state.messageHistory.push({ sender, text, time });
+        }
+
+        function formatMessage(text) {
+            return text
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--primary-cyan);">$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color: var(--primary-cyan); text-decoration: underline;">$1</a>');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function setMode(mode) {
+            state.mode = mode;
+            
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.mode === mode) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            const colors = {
+                romantic: 'rgba(236, 72, 153, 0.3)',
+                friend: 'rgba(6, 182, 212, 0.3)',
+                professional: 'rgba(139, 92, 246, 0.3)',
+                playful: 'rgba(234, 179, 8, 0.3)'
+            };
+            document.getElementById('mood-ring').style.background = colors[mode];
+            
+            const emojis = {
+                romantic: '💕',
+                friend: '🤖',
+                professional: '💼',
+                playful: '🎭'
+            };
+            document.getElementById('mini-avatar').innerHTML = `${emojis[mode]}<div class="status-dot"></div>`;
+            
+            showToast(`Switched to ${mode} mode`);
+        }
+
+        function generateContent(type) {
+            if (type === 'meme') {
+                const meme = creativeDB.memes[Math.floor(Math.random() * creativeDB.memes.length)];
+                addMessage(`[Generated Meme]\n\n${meme}`, 'husain');
+            } else if (type === 'poem') {
+                const poem = creativeDB.poems[Math.floor(Math.random() * creativeDB.poems.length)];
+                addMessage(`Here's a special poem for you:\n\n${poem}`, 'husain');
+            } else if (type === 'compliment') {
+                const comp = creativeDB.compliments[Math.floor(Math.random() * creativeDB.compliments.length)];
+                addMessage(comp, 'husain');
+            } else if (type === 'joke') {
+                const joke = creativeDB.jokes[Math.floor(Math.random() * creativeDB.jokes.length)];
+                addMessage(joke, 'husain');
+            } else if (type === 'sticker') {
+                showToast('Click any sticker to send it!');
+            } else if (type === 'image') {
+                addMessage("🎨 I'd love to create an image for you! Describe what you'd like to see, and I'll paint it with words... or imagine it vividly! ✨", 'husain');
+            }
+        }
+
+        function useMeme(template) {
+            const memes = {
+                drake: "Top panel: Using regular chat apps\nBottom panel: Using Husain Chipda with 3D avatar 💎",
+                distracted: "Boyfriend: Other AI assistants\nGirlfriend: Basic chat\nDistracted Boyfriend: You, looking at Husain Chipda's features",
+                change: "Change my mind: Husain Chipda is the most advanced browser-based AI companion",
+                scroll: "Me: Just 5 more minutes\nAlso me: *3 hours later* still chatting with Husain Chipda 📱"
+            };
+            addMessage(`[Meme: ${template}]\n\n${memes[template]}`, 'husain');
+        }
+
+        function initStickers() {
+            const grid = document.getElementById('sticker-grid');
+            stickers.forEach(emoji => {
+                const btn = document.createElement('button');
+                btn.className = 'sticker-btn';
+                btn.textContent = emoji;
+                btn.onclick = () => {
+                    document.getElementById('message-input').value += emoji;
+                    document.getElementById('message-input').focus();
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function initEmojis() {
+            const emojis = ['😀', '😂', '🥰', '😍', '🤔', '💕', '❤️', '✨', '🔥', '🎉', '💯', '🙌', '👏', '🤗', '😊', '🌟', '💫', '🌹', '🎨', '🎭', '🎪', '🎯', '🎲', '🎸', '🎺', '🌈', '☀️', '🌙', '⭐', '⚡', '💥', '💦', '💨', '🍕', '🍔', '🍟', '🌮', '🍦', '🍩', '🍪', '🎂', '🍰', '🍫', '🍬', '🍭', '🍮', '🍯', '🍼', '☕', '🍵', '🍶', '🍾', '🍷', '🍸', '🍹', '🍺', '🍻', '🥂', '🥃', '🥤', '🏆', '🎖️', '🎗️', '🎟️', '🎫', '🎮', '🕹️', '🎰', '🎲', '🎯', '🎳', '🎸', '🎺', '🎻', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🎻', '🎹', '🎤', '🎧', '🎬', '🎮', '📱', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', '🕹️', '🗜️', '💽', '💾', '💿', '📀', '📼', '📷', '📸', '📹', '🎥', '📽️', '🎞️', '📞', '☎️', '📟', '📠', '📺', '📻', '🎙️', '🎚️', '🎛️', '🧭', '⏱️', '⏲️', '⏰', '🕰️', '⌛', '⏳', '📡', '🔋', '🔌', '💡', '🔦', '🕯️', '🪔', '🧯', '🛢️', '💸', '💵', '💴', '💶', '💷', '🪙', '💰', '💳', '💎', '⚖️', '🪜', '🧰', '🪛', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🪚', '🔩', '⚙️', '🪤', '🧱', '⛓️', '🧲', '🔫', '💣', '🧱', '🪨', '🪵', '🛡️', '🗡️', '⚔️', '🔪', '💉', '🩸', '💊', '🩹', '🩺', '🌡️', '🧹', '🧺', '🧻', '🚽', '🚰', '🚿', '🛁', '🛀', '🧼', '🪥', '🪒', '🧽', '🧴', '🛎️', '🔑', '🗝️', '🚪', '🪑', '🛋️', '🛏️', '🛌', '🧸', '🪆', '🖼️', '🪞', '🪟', '🛍️', '🛒', '🎁', '🎈', '🎏', '🎀', '🪄', '🪅', '🎊', '🎉', '🎎', '🏆', '🎖️', '🎗️', '🎟️', '🎫'];
+            
+            const grid = document.getElementById('emoji-grid');
+            emojis.forEach(emoji => {
+                const div = document.createElement('div');
+                div.className = 'emoji-item';
+                div.textContent = emoji;
+                div.onclick = () => {
+                    document.getElementById('message-input').value += emoji;
+                    toggleEmojiModal();
+                };
+                grid.appendChild(div);
+            });
+        }
+
+        function toggleEmojiModal() {
+            document.getElementById('emoji-modal').classList.toggle('active');
+        }
+
+        function toggleVoice() {
+            state.voiceEnabled = !state.voiceEnabled;
+            const btn = document.getElementById('voice-btn');
+            
+            if (state.voiceEnabled) {
+                btn.classList.add('active');
+                document.getElementById('voice-visualizer').classList.add('active');
+                showToast('Voice mode enabled');
+            } else {
+                btn.classList.remove('active');
+                document.getElementById('voice-visualizer').classList.remove('active');
+            }
+        }
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                const cleanText = text.replace(/[^\w\s.,!?-]/g, '');
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.rate = parseFloat(document.getElementById('voice-speed')?.value || 1);
+                utterance.pitch = 1.1;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        function extractMemory(text) {
+            const lower = text.toLowerCase();
+            
+            if (lower.includes('my name is') || lower.includes('i am ')) {
+                const match = text.match(/(?:my name is|i am)\s+(\w+)/i);
+                if (match && match[1].length > 2) {
+                    state.userName = match[1];
+                    state.memories.push(`Name: ${match[1]}`);
+                    document.getElementById('user-name-display').textContent = match[1];
+                    document.getElementById('user-avatar').textContent = match[1][0];
+                }
+            }
+            
+            if (lower.includes('i like') || lower.includes('i love') || lower.includes('my favorite')) {
+                state.memories.push(`Likes: ${text.substring(0, 50)}...`);
+            }
+            
+            if (lower.includes('i feel') || lower.includes('i am feeling')) {
+                state.memories.push(`Mood: ${text.substring(0, 50)}...`);
+            }
+            
+            updateMemoryDisplay();
+        }
+
+        function updateMemoryDisplay() {
+            const list = document.getElementById('memory-list');
+            if (state.memories.length === 0) {
+                list.innerHTML = '<div class="memory-item">No memories yet. Start chatting!</div>';
+            } else {
+                list.innerHTML = state.memories.slice(-5).map(m => 
+                    `<div class="memory-item">${m}</div>`
+                ).join('');
+            }
+        }
+
+        function copyMessage(btn) {
+            const text = btn.closest('.message').querySelector('.message-content').innerText;
+            navigator.clipboard.writeText(text);
+            showToast('Copied to clipboard');
+        }
+
+        function regenerate(btn) {
+            const content = btn.closest('.message').querySelector('.message-content');
+            content.style.opacity = '0.5';
+            setTimeout(() => {
+                content.style.opacity = '1';
+                showToast('Regenerated (simulated)');
+            }, 500);
+        }
+
+        function likeMessage(btn) {
+            btn.classList.toggle('liked');
+            if (btn.classList.contains('liked')) {
+                avatarAction('heart');
+            }
+        }
+
+        function clearChat() {
+            if (confirm('Clear all messages?')) {
+                document.getElementById('chat-container').innerHTML = '';
+                state.messageHistory = [];
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            if (sidebar.style.transform === 'translateX(0%)') {
+                sidebar.style.transform = 'translateX(-100%)';
+                overlay.classList.remove('active');
+            } else {
+                sidebar.style.transform = 'translateX(0%)';
+                sidebar.style.position = 'fixed';
+                sidebar.style.zIndex = '1000';
+                sidebar.style.height = '100vh';
+                overlay.classList.add('active');
+            }
+        }
+
+        function toggleCreativePanel() {
+            const panel = document.getElementById('creative-panel');
+            panel.classList.toggle('open');
+        }
+
+        function toggleSettings() {
+            document.getElementById('settings-modal').classList.toggle('active');
+        }
+
+        function toggleAvatarSetting() {
+            const toggle = document.getElementById('avatar-toggle');
+            toggle.classList.toggle('active');
+            toggleAvatar();
+        }
+
+        function toggleVoiceSetting() {
+            const toggle = document.getElementById('voice-toggle');
+            toggle.classList.toggle('active');
+            toggleVoice();
+        }
+
+        function updateMood(value) {
+            state.currentMood = value;
+            const moods = [
+                { emoji: '😢', name: 'Sad', color: 'rgba(59, 130, 246, 0.3)' },
+                { emoji: '😔', name: 'Melancholy', color: 'rgba(99, 102, 241, 0.3)' },
+                { emoji: '😐', name: 'Neutral', color: 'rgba(107, 114, 128, 0.3)' },
+                { emoji: '🙂', name: 'Content', color: 'rgba(34, 197, 94, 0.3)' },
+                { emoji: '😊', name: 'Happy', color: 'rgba(234, 179, 8, 0.3)' },
+                { emoji: '🥰', name: 'Loving', color: 'rgba(236, 72, 153, 0.3)' },
+                { emoji: '🤩', name: 'Excited', color: 'rgba(168, 85, 247, 0.3)' }
+            ];
+            
+            const index = Math.min(Math.floor((value / 100) * moods.length), moods.length - 1);
+            const mood = moods[index];
+            
+            document.getElementById('mood-emoji').textContent = mood.emoji;
+            document.getElementById('mood-name').textContent = mood.name;
+            document.getElementById('mood-ring').style.background = mood.color;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        document.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                createParticles(e.clientX, e.clientY);
+            }
+        });
+
+        function createParticles(x, y) {
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const particles = [];
+            const colors = ['#06b6d4', '#8b5cf6', '#ec4899', '#eab308'];
+            
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    life: 1,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 4 + 2
+                });
+            }
+            
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let active = false;
+                
+                particles.forEach(p => {
+                    if (p.life > 0) {
+                        active = true;
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.vy += 0.3;
+                        p.life -= 0.02;
+                        
+                        ctx.globalAlpha = p.life;
+                        ctx.fillStyle = p.color;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+                
+                if (active) requestAnimationFrame(animate);
+            }
+            animate();
+        }
+    </script>
+</body>
+</html>
